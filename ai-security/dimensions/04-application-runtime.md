@@ -23,7 +23,9 @@ are verified by adversarial testing (MDL-3), and feed monitoring and response
 
 ## APP-1 Input Validation & Prompt Injection Defense
 
-**Applies to:** ML · LLM · Agentic (most requirements are `[LLM]` or `[Agentic]`)
+**Applies to:** ML · LLM · Agentic
+
+**Scope note:** Most requirements are tagged `[LLM]` or `[Agentic]`.
 
 **Intent:** Reduce the likelihood that untrusted input changes a model's
 behavior in ways the application owner did not intend. For LLM and agentic

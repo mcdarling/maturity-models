@@ -148,9 +148,11 @@ Provenance attestations are cryptographically bound to the data they describe.
 
 ## DATA-2 Training & Fine-Tuning Data Integrity
 
-**Applies to:** ML · LLM · Agentic (for LLM and Agentic systems, only where the
-organization trains, fine-tunes or builds preference/reward data for the model;
-otherwise record N/A with justification and rely on INF-4)
+**Applies to:** ML · LLM · Agentic
+
+**Scope note:** For LLM and Agentic systems, this element applies only where the
+organization trains, fine-tunes or builds preference/reward data for the model.
+Otherwise, record N/A with a justification and rely on INF-4.
 
 **Intent:** Ensure that data used to train or fine-tune models has not been
 tampered with, poisoned or backdoored, and that only authorized people and

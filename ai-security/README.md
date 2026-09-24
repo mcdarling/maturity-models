@@ -37,6 +37,11 @@ and records of practice an assessor can examine, each with acceptance criteria.
    Traditional  Ad hoc
 ```
 
+**At a glance:** 6 dimensions, 26 elements, 3 cross-cutting capabilities and
+494 evidence items (Initial 177 · Advanced 194 · Optimal 123). An ML-profile
+system is assessed against up to 307 items, an LLM system up to 375 and an
+Agentic system all 494.
+
 ## Core concepts
 
 - **[Maturity stages](model/levels.md).** ZTMM's four stages, defined for AI, and
