@@ -1,0 +1,681 @@
+<title>AI Security Maturity Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root {
+  --bg: #f4f5f2;
+  --surface: #ffffff;
+  --sunk: #eceee9;
+  --ink: #17201d;
+  --ink-2: #3b4642;
+  --muted: #65716c;
+  --rule: #d8ddd8;
+  --rule-strong: #b9c0bb;
+  --accent: #2c46a0;
+  --accent-ink: #ffffff;
+  --accent-soft: #e3e8f6;
+  --s0: #c7ccc9;   /* Traditional */
+  --s1: #a3bfe0;   /* Initial */
+  --s2: #4d7fc4;   /* Advanced */
+  --s3: #1d3d88;   /* Optimal */
+  --doc-fg: #6f5220; --doc-bg: #f2e9d6;
+  --rec-fg: #25694a; --rec-bg: #dbeee3;
+  --tech-fg: #2f4b8c; --tech-bg: #e0e7f5;
+  --test-fg: #8b3346; --test-bg: #f5dfe4;
+  --warn-bg: #fbf1dc; --warn-fg: #6d4f12;
+  --shadow: 0 1px 2px rgba(23, 32, 29, .06), 0 4px 16px rgba(23, 32, 29, .05);
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --top: 56px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #101513; --surface: #171e1b; --sunk: #1d2521;
+    --ink: #e5ebe8; --ink-2: #c3ccc8; --muted: #95a29d;
+    --rule: #28322e; --rule-strong: #3b4843;
+    --accent: #9db1f2; --accent-ink: #101513; --accent-soft: #1f2a45;
+    --s0: #3b4541; --s1: #3a5d8c; --s2: #6597dc; --s3: #b3cbf7;
+    --doc-fg: #e3c68c; --doc-bg: #342a17;
+    --rec-fg: #8fd3b1; --rec-bg: #17322a;
+    --tech-fg: #a9bff0; --tech-bg: #1e2a47;
+    --test-fg: #f0a5b5; --test-bg: #3c1f27;
+    --warn-bg: #33291a; --warn-fg: #e7cd96;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #101513; --surface: #171e1b; --sunk: #1d2521;
+  --ink: #e5ebe8; --ink-2: #c3ccc8; --muted: #95a29d;
+  --rule: #28322e; --rule-strong: #3b4843;
+  --accent: #9db1f2; --accent-ink: #101513; --accent-soft: #1f2a45;
+  --s0: #3b4541; --s1: #3a5d8c; --s2: #6597dc; --s3: #b3cbf7;
+  --doc-fg: #e3c68c; --doc-bg: #342a17;
+  --rec-fg: #8fd3b1; --rec-bg: #17322a;
+  --tech-fg: #a9bff0; --tech-bg: #1e2a47;
+  --test-fg: #f0a5b5; --test-bg: #3c1f27;
+  --warn-bg: #33291a; --warn-fg: #e7cd96;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(var(--top) + 16px); }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 15px/1.6 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 3px;
+}
+code { font: 0.86em/1.4 var(--mono); background: var(--sunk); padding: 1px 5px; border-radius: 3px; }
+pre { background: var(--sunk); border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; overflow-x: auto; font: 12.5px/1.5 var(--mono); }
+pre code { background: none; padding: 0; font-size: inherit; }
+h1, h2, h3, h4 { font-family: var(--cond); text-wrap: balance; line-height: 1.2; margin: 0; }
+.mono { font-family: var(--mono); }
+.eyebrow { font: 600 11.5px/1 var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+
+/* ------------------------------------------------------------ top bar */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--surface); border-bottom: 1px solid var(--rule);
+}
+.topbar-inner {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  min-height: var(--top); padding: 8px 16px;
+}
+.brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--ink); margin-right: auto; }
+.brand b { font: 700 18px/1 var(--cond); letter-spacing: .01em; }
+.brand span { font: 500 12px/1 var(--mono); color: var(--muted); }
+.navtoggle, .navclose {
+  display: none; font: 500 13px/1 var(--sans); padding: 8px 12px; border-radius: 6px;
+  border: 1px solid var(--rule-strong); background: var(--surface); color: var(--ink); cursor: pointer;
+}
+.controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.seg { display: inline-flex; border: 1px solid var(--rule-strong); border-radius: 7px; overflow: hidden; background: var(--surface); }
+.seg button {
+  font: 500 13px/1 var(--sans); padding: 8px 11px; border: 0; background: none; color: var(--ink-2); cursor: pointer;
+  border-right: 1px solid var(--rule);
+}
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.seg-label { font: 500 12px/1 var(--sans); color: var(--muted); }
+.search { position: relative; }
+.search input {
+  font: 14px/1 var(--sans); width: 220px; max-width: 100%; padding: 8px 10px 8px 30px;
+  border: 1px solid var(--rule-strong); border-radius: 7px; background: var(--bg); color: var(--ink);
+}
+.search svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; stroke: var(--muted); fill: none; }
+
+/* ------------------------------------------------------------ layout */
+.shell { display: grid; grid-template-columns: 272px minmax(0, 1fr); max-width: 1320px; margin: 0 auto; }
+.sidebar {
+  position: sticky; top: calc(var(--top) + env(safe-area-inset-top, 0px)); align-self: start;
+  height: calc(100vh - var(--top) - env(safe-area-inset-top, 0px)); overflow-y: auto;
+  border-right: 1px solid var(--rule); padding: 18px 12px 40px 16px;
+}
+.sidebar h3 { font: 600 11px/1 var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); padding: 14px 8px 6px; }
+.sidebar a {
+  display: flex; gap: 8px; align-items: baseline; padding: 5px 8px; border-radius: 5px;
+  color: var(--ink-2); text-decoration: none; font-size: 13.5px; line-height: 1.35;
+}
+.sidebar a:hover { background: var(--sunk); }
+.sidebar a[aria-current="page"] { background: var(--accent-soft); color: var(--ink); font-weight: 500; }
+.sidebar a .mono { font-size: 11.5px; color: var(--muted); min-width: 44px; }
+.sidebar a.dim { font-weight: 600; color: var(--ink); margin-top: 6px; }
+.sidebar a.na { opacity: .45; }
+.sidebar a.el { padding-left: 14px; }
+
+main { padding: 32px 40px 80px; min-width: 0; }
+.page { max-width: 900px; }
+
+/* ------------------------------------------------------------ overview */
+.hero { display: grid; gap: 14px; padding-bottom: 28px; border-bottom: 1px solid var(--rule); }
+.hero h1 { font-size: clamp(30px, 4.5vw, 44px); font-weight: 700; letter-spacing: -.005em; }
+.lead { font-size: 17px; line-height: 1.55; color: var(--ink-2); max-width: 64ch; margin: 0; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-top: 6px; }
+.stat { display: grid; gap: 2px; }
+.stat b { font: 600 26px/1 var(--cond); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12.5px; color: var(--muted); }
+
+.section { padding-top: 34px; display: grid; gap: 14px; }
+.section > h2 { font-size: 22px; font-weight: 600; }
+.section > p { margin: 0; max-width: 68ch; color: var(--ink-2); }
+
+.scale { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.scale > div { padding: 14px 14px 16px; border-right: 1px solid var(--rule); display: grid; gap: 6px; align-content: start; }
+.scale > div:last-child { border-right: 0; }
+.scale .bar { height: 6px; border-radius: 3px; }
+.scale h4 { font-size: 16px; font-weight: 600; }
+.scale p { margin: 0; font-size: 13px; color: var(--ink-2); line-height: 1.45; }
+
+.matrix { display: grid; gap: 10px; }
+.mrow { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 12px; align-items: stretch; }
+.mhead { display: grid; align-content: start; gap: 3px; padding-top: 10px; text-decoration: none; color: var(--ink); }
+.mhead .eyebrow { font-size: 10.5px; }
+.mhead b { font: 600 16px/1.2 var(--cond); }
+.mcells { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.cell {
+  display: grid; gap: 4px; align-content: start; padding: 10px 11px; border-radius: 7px;
+  background: var(--surface); border: 1px solid var(--rule); text-decoration: none; color: var(--ink);
+  transition: border-color .15s, transform .15s;
+}
+.cell:hover { border-color: var(--accent); }
+.cell .mono { font-size: 11.5px; color: var(--muted); }
+.cell b { font-weight: 500; font-size: 13.5px; line-height: 1.3; }
+.cell small { font-size: 11.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cell.na { background: transparent; border-style: dashed; opacity: .55; }
+
+.steps { counter-reset: s; display: grid; gap: 10px; padding: 0; margin: 0; list-style: none; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; align-items: start; max-width: 70ch; }
+.steps li::before {
+  content: counter(s); font: 600 13px/28px var(--mono); text-align: center; width: 28px; height: 28px;
+  border-radius: 50%; border: 1px solid var(--rule-strong); color: var(--ink-2);
+}
+.steps li p { margin: 3px 0 0; color: var(--ink-2); }
+
+/* ------------------------------------------------------------ chips */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.chip { font: 500 11.5px/1 var(--mono); padding: 4px 7px; border-radius: 4px; border: 1px solid var(--rule-strong); color: var(--ink-2); white-space: nowrap; }
+.chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.t { font: 600 10.5px/1 var(--mono); letter-spacing: .03em; padding: 4px 6px; border-radius: 4px; white-space: nowrap; }
+.t-Doc { color: var(--doc-fg); background: var(--doc-bg); }
+.t-Rec { color: var(--rec-fg); background: var(--rec-bg); }
+.t-Tech { color: var(--tech-fg); background: var(--tech-bg); }
+.t-Test { color: var(--test-fg); background: var(--test-bg); }
+.p { font: 500 10.5px/1 var(--mono); padding: 3px 6px; border-radius: 4px; border: 1px solid var(--rule-strong); color: var(--muted); white-space: nowrap; }
+
+/* ------------------------------------------------------------ element page */
+.el-head { display: grid; gap: 12px; padding-bottom: 22px; border-bottom: 1px solid var(--rule); }
+.el-head h1 { font-size: clamp(26px, 4vw, 36px); font-weight: 700; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: baseline; }
+.el-head h1 .mono { font-size: .6em; font-weight: 500; color: var(--muted); }
+.note { background: var(--warn-bg); color: var(--warn-fg); padding: 10px 14px; border-radius: 6px; font-size: 14px; max-width: 70ch; }
+.note p { margin: 0; }
+.facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; padding: 20px 0 4px; }
+.facts h4 { font: 600 11px/1 var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.facts div { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+
+.ladder-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 22px 0 6px; position: sticky; top: calc(var(--top) + env(safe-area-inset-top, 0px)); background: var(--bg); padding: 10px 0; z-index: 5; }
+.ladder-nav a { display: grid; gap: 6px; text-decoration: none; color: var(--ink-2); font-size: 13px; font-weight: 500; }
+.ladder-nav a span:first-child { height: 5px; border-radius: 3px; }
+.ladder-nav a small { color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+
+.stage { padding-top: 26px; display: grid; gap: 14px; scroll-margin-top: calc(var(--top) + 76px); }
+.stage-h { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.stage-h h2 { font-size: 22px; font-weight: 600; }
+.rungs { display: inline-grid; grid-template-columns: repeat(4, 14px); gap: 3px; }
+.rungs i { height: 14px; border-radius: 2px; background: var(--sunk); border: 1px solid var(--rule); }
+.stage-h .gist { color: var(--muted); font-size: 13px; flex-basis: 100%; }
+.stage-desc p { margin: 0 0 10px; max-width: 70ch; color: var(--ink-2); }
+.sub { font: 600 11px/1 var(--sans); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.practices { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; max-width: 74ch; }
+.practices li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 8px; font-size: 14px; color: var(--ink-2); }
+.practices li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--rule-strong); margin-top: 9px; }
+.practices .p { margin-right: 6px; vertical-align: 1px; }
+
+.evidence { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; box-shadow: var(--shadow); }
+.ev { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 4px 16px; padding: 13px 16px; border-top: 1px solid var(--rule); }
+.ev:first-child { border-top: 0; }
+.ev-meta { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.ev-id { font: 500 12px/1.2 var(--mono); color: var(--ink); }
+.ev-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.ev-body b { font-weight: 600; font-size: 14.5px; display: block; margin-bottom: 2px; }
+.ev-body div { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.hidden-note { font-size: 12.5px; color: var(--muted); font-style: italic; }
+.empty { color: var(--muted); font-size: 14px; }
+
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--rule); }
+.pager a { display: grid; gap: 3px; text-decoration: none; color: var(--ink); padding: 12px 14px; border: 1px solid var(--rule); border-radius: 7px; background: var(--surface); }
+.pager a:hover { border-color: var(--accent); }
+.pager a.next { text-align: right; }
+.pager small { color: var(--muted); font-size: 12px; }
+
+/* ------------------------------------------------------------ copy panel */
+.copybar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); font-size: 13.5px; }
+.copybar select { font: 13.5px var(--sans); padding: 6px 8px; border-radius: 6px; border: 1px solid var(--rule-strong); background: var(--bg); color: var(--ink); }
+.btn { font: 500 13.5px/1 var(--sans); padding: 9px 13px; border-radius: 6px; border: 0; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.btn:hover { filter: brightness(1.08); }
+.copy-status { color: var(--muted); font-size: 12.5px; }
+.copy-fallback { width: 100%; height: 120px; font: 11.5px var(--mono); margin-top: 6px; background: var(--bg); color: var(--ink); border: 1px solid var(--rule-strong); border-radius: 6px; }
+
+/* ------------------------------------------------------------ prose (framework docs) */
+.prose { max-width: 74ch; }
+.prose h1 { font-size: clamp(28px, 4vw, 38px); font-weight: 700; margin-bottom: 14px; }
+.prose h2 { font-size: 22px; font-weight: 600; margin: 30px 0 10px; }
+.prose h3 { font-size: 17px; font-weight: 600; margin: 22px 0 8px; }
+.prose p, .prose li { color: var(--ink-2); }
+.prose ul, .prose ol { padding-left: 22px; }
+.prose li { margin-bottom: 6px; }
+.prose blockquote { margin: 16px 0; padding: 4px 18px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; }
+.tablewrap { overflow-x: auto; margin: 14px 0; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-top: 1px solid var(--rule); }
+th { border-top: 0; font: 600 11.5px/1.3 var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); background: var(--sunk); }
+td:first-child { white-space: nowrap; }
+
+.dim-intro p { max-width: 70ch; color: var(--ink-2); margin: 0 0 10px; }
+.el-list { display: grid; gap: 10px; }
+.el-card { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); text-decoration: none; color: var(--ink); }
+.el-card:hover { border-color: var(--accent); }
+.el-card h3 { font-size: 18px; font-weight: 600; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.el-card h3 .mono { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+.el-card p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.el-card.na { opacity: .55; }
+
+.results { display: grid; gap: 8px; }
+.result { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 8px; background: var(--surface); text-decoration: none; color: var(--ink); }
+.result:hover { border-color: var(--accent); }
+.result .top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.result b { font-weight: 600; }
+.result div { font-size: 13.5px; color: var(--ink-2); }
+mark { background: color-mix(in srgb, var(--accent) 22%, transparent); color: inherit; border-radius: 2px; padding: 0 1px; }
+
+footer { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 12.5px; color: var(--muted); max-width: 900px; }
+footer p { margin: 0 0 6px; }
+
+/* ------------------------------------------------------------ responsive */
+@media (max-width: 900px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .navtoggle { display: inline-block; }
+  .sidebar {
+    position: fixed; height: auto; z-index: 25;
+    background: var(--bg); border-right: 0; padding: 12px 16px 40px; display: none;
+  }
+  body.nav-open .sidebar { display: block; }
+  .topbar { position: static; }
+  .sidebar { inset: 0; top: 0; padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+  .navclose { display: inline-block; margin: 0 0 8px 8px; }
+  .ladder-nav { position: static; }
+  .stage { scroll-margin-top: 12px; }
+  html { scroll-padding-top: 12px; }
+  main { padding: 24px 16px 60px; }
+  .mrow { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .mhead { padding-top: 6px; }
+  .facts { grid-template-columns: minmax(0, 1fr); }
+  .scale { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .scale > div:nth-child(2) { border-right: 0; }
+  .scale > div:nth-child(-n+2) { border-bottom: 1px solid var(--rule); }
+  .topbar-inner { padding: 8px 16px; }
+  .search input { width: 100%; }
+  .search { flex: 1 1 160px; }
+}
+@media (max-width: 560px) {
+  .ev { grid-template-columns: minmax(0, 1fr); }
+  .ev-meta { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .seg button { padding: 8px 9px; }
+  .seg-label { display: none; }
+  .brand span { display: none; }
+  .ladder-nav a { font-size: 11.5px; }
+  .pager { grid-template-columns: minmax(0, 1fr); }
+  .pager a.next { text-align: left; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <button class="navtoggle" id="navtoggle" aria-expanded="false" aria-controls="sidebar">Contents</button>
+    <a class="brand" href="#overview"><b>AI Security Maturity Model</b><span>AISMM · draft 0.1</span></a>
+    <div class="controls">
+      <span class="seg-label" id="profile-label">Profile</span>
+      <div class="seg" role="group" aria-labelledby="profile-label" id="profile-seg">
+        <button type="button" data-p="All">All</button>
+        <button type="button" data-p="ML">ML</button>
+        <button type="button" data-p="LLM">LLM</button>
+        <button type="button" data-p="Agentic">Agentic</button>
+      </div>
+      <label class="search">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input id="q" type="search" placeholder="Search evidence and practices" aria-label="Search evidence and practices" autocomplete="off">
+      </label>
+    </div>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="sidebar" id="sidebar" aria-label="Model contents"></nav>
+  <main id="main"><div class="page" id="view"></div>
+    <footer>
+      <p>AI Security Maturity Model (AISMM), draft 0.1. The structure follows the CISA Zero Trust Maturity Model: dimensions play the role of pillars, elements play the role of functions, and there are three cross-cutting capabilities.</p>
+      <p>Thresholds in acceptance criteria are starting points. Calibrate them to your organization's risk appetite before running an assessment.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+const STAGES = ["Traditional", "Initial", "Advanced", "Optimal"];
+const STAGE_VAR = { Traditional: "--s0", Initial: "--s1", Advanced: "--s2", Optimal: "--s3" };
+const STAGE_GIST = {
+  Traditional: "Ad hoc. AI is treated like any other software, or not tracked at all.",
+  Initial: "Defined basics are in place and evidenced, at least for high-risk systems.",
+  Advanced: "Consistent across all in-scope systems, built into the lifecycle and measured.",
+  Optimal: "Automated, continuously verified and adapting to new threats."
+};
+const PROFILE_STACK = { ML: ["All", "ML"], LLM: ["All", "ML", "LLM"], Agentic: ["All", "ML", "LLM", "Agentic"] };
+const PROFILE_DESC = {
+  All: "Showing every requirement for every profile.",
+  ML: "Classical / predictive ML: classifiers, recommenders, forecasting, computer vision.",
+  LLM: "LLM systems that suggest but do not act: chat, RAG search, copilots. Includes ML requirements.",
+  Agentic: "Systems that call tools or take actions. Includes all LLM and ML requirements."
+};
+
+const DIMS = DATA.dimensions;
+const ELEMENTS = [];
+DIMS.forEach(d => d.elements.forEach(e => { e.dim = d; ELEMENTS.push(e); }));
+const BY_ID = Object.fromEntries(ELEMENTS.map(e => [e.id, e]));
+
+let profile = "All";
+try { const p = localStorage.getItem("aismm-profile"); if (p && (p === "All" || PROFILE_STACK[p])) profile = p; } catch (e) {}
+
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const applies = e => profile === "All" || e.applies.includes(profile);
+const itemVisible = tag => profile === "All" || !tag || tag === "All" || PROFILE_STACK[profile].includes(tag);
+const dimLabel = d => d.num ? `Dimension ${d.num}` : "Cross-cutting";
+function evCount(e, upto) {
+  if (!applies(e)) return 0;
+  const lim = upto ? STAGES.indexOf(upto) : 3;
+  return e.stages.filter(s => STAGES.indexOf(s.name) <= lim)
+    .reduce((n, s) => n + s.evidence.filter(v => itemVisible(v.profile)).length, 0);
+}
+function rungs(stage) {
+  const k = STAGES.indexOf(stage);
+  return `<span class="rungs" aria-hidden="true">${STAGES.map((s, i) =>
+    `<i style="${i <= k ? `background:var(${STAGE_VAR[STAGES[k]]});border-color:var(${STAGE_VAR[STAGES[k]]})` : ""}"></i>`).join("")}</span>`;
+}
+
+/* ------------------------------------------------------------ sidebar */
+function renderNav(current) {
+  const link = (href, inner, cls = "") =>
+    `<a href="#${href}" class="${cls}"${href === current ? ' aria-current="page"' : ""}>${inner}</a>`;
+  let h = `<h3>Framework</h3>` +
+    link("overview", "Overview") +
+    DATA.docs.map(d => link("doc-" + d.id, esc(d.title))).join("");
+  h += `<h3>Dimensions</h3>`;
+  DIMS.forEach(d => {
+    h += link("dim-" + d.key, `<span class="mono">${d.num ? "D" + d.num : "X"}</span>${esc(d.title)}`, "dim");
+    d.elements.forEach(e => {
+      h += link(e.id, `<span class="mono">${e.id}</span>${esc(e.name)}`, "el" + (applies(e) ? "" : " na"));
+    });
+  });
+  $("#sidebar").innerHTML = `<button type="button" class="navclose" id="navclose">Close contents</button>` + h;
+  $("#navclose").addEventListener("click", () => { document.body.classList.remove("nav-open"); $("#navtoggle").setAttribute("aria-expanded", "false"); $("#navtoggle").focus(); });
+}
+
+/* ------------------------------------------------------------ views */
+function viewOverview() {
+  const visEls = ELEMENTS.filter(applies);
+  const total = visEls.reduce((n, e) => n + evCount(e), 0);
+  const dimsInScope = DIMS.filter(d => d.num && d.elements.some(applies)).length;
+  let h = `<section class="hero">
+    <span class="eyebrow">Reference model · draft 0.1</span>
+    <h1>AI Security Maturity Model</h1>
+    <p class="lead">A maturity model for securing classical ML, LLM and agentic AI systems. It has six dimensions and three cross-cutting capabilities, rated on the four stages of the CISA Zero Trust Maturity Model. Every stage of every element lists the evidence a team must produce to defend the claim.</p>
+    <div class="stats">
+      <div class="stat"><b>${dimsInScope}</b><span>dimensions</span></div>
+      <div class="stat"><b>${visEls.length}</b><span>elements and capabilities</span></div>
+      <div class="stat"><b>${total}</b><span>evidence items${profile === "All" ? "" : " for " + profile}</span></div>
+    </div>
+    <p class="empty" style="margin:0">${esc(PROFILE_DESC[profile])}</p>
+  </section>
+
+  <section class="section">
+    <h2>Four stages</h2>
+    <p>Stages are cumulative. An element sits at the highest stage for which it has produced every piece of evidence, including all lower stages. <a href="#doc-stages">Rules for claiming a stage</a></p>
+    <div class="scale">${STAGES.map(s => `<div><span class="bar" style="background:var(${STAGE_VAR[s]})"></span><h4>${s}</h4><p>${STAGE_GIST[s]}</p></div>`).join("")}</div>
+  </section>
+
+  <section class="section">
+    <h2>Model structure</h2>
+    <p>Pick an element to see its stage descriptions, practices and evidence. The counts are evidence items across Initial, Advanced and Optimal for the selected profile.</p>
+    <div class="matrix">${DIMS.map(d => `
+      <div class="mrow">
+        <a class="mhead" href="#dim-${d.key}"><span class="eyebrow">${dimLabel(d)}</span><b>${esc(d.title)}</b></a>
+        <div class="mcells">${d.elements.map(e => `
+          <a class="cell${applies(e) ? "" : " na"}" href="#${e.id}">
+            <span class="mono">${e.id}</span><b>${esc(e.name)}</b>
+            <small>${applies(e) ? evCount(e) + " evidence items" : "Not in " + profile + " profile"}</small>
+          </a>`).join("")}</div>
+      </div>`).join("")}</div>
+  </section>
+
+  <section class="section">
+    <h2>Running an assessment</h2>
+    <ol class="steps">
+      <li><div><b>Scope the estate.</b><p>List every AI system in the inventory (<a class="xref" href="#GOV-1">GOV-1</a>) and give each one a profile. Profiles stack: agents inherit every LLM requirement, and LLM systems inherit the ML ones. <a href="#doc-profiles">How profiles work</a></p></div></li>
+      <li><div><b>Build the checklist.</b><p>Choose a profile at the top of the page, choose a target stage below, and copy the evidence checklist into a spreadsheet.</p></div></li>
+      <li><div><b>Collect evidence.</b><p>Teams attach evidence that meets each acceptance criterion and freshness window. Items that do not apply are recorded as N/A with a justification. <a href="#doc-evidence">Evidence rules</a></p></div></li>
+      <li><div><b>Assess and report.</b><p>Assessors sample the evidence and rate each element at its lowest fully evidenced stage. Unmet items for the next stage become the roadmap.</p></div></li>
+    </ol>
+    ${copyBar(null)}
+  </section>
+
+  <section class="section prose">
+    <h2 style="margin:0">Framework alignment</h2>
+    ${DATA.alignment}
+  </section>`;
+  return h;
+}
+
+function viewDoc(doc) {
+  return `<article class="prose"><span class="eyebrow">Framework</span><h1>${esc(doc.title)}</h1>${doc.html}</article>`;
+}
+
+function viewDim(d) {
+  return `<div class="el-head"><span class="eyebrow">${dimLabel(d)}</span><h1>${esc(d.title)}</h1>
+    <div class="dim-intro">${d.intro}</div></div>
+    <div class="section"><div class="el-list">${d.elements.map(e => `
+      <a class="el-card${applies(e) ? "" : " na"}" href="#${e.id}">
+        <h3><span class="mono">${e.id}</span>${esc(e.name)}</h3>
+        <div class="chips">${e.applies.map(p => `<span class="chip${p === profile ? " on" : ""}">${p}</span>`).join("")}
+          <span class="copy-status">${applies(e) ? evCount(e) + " evidence items" : "Not in " + profile + " profile"}</span></div>
+        <p>${stripTags(e.intent)}</p>
+      </a>`).join("")}</div></div>`;
+}
+
+function stripTags(s) { const t = document.createElement("div"); t.innerHTML = s; return esc(t.textContent); }
+
+function viewElement(e) {
+  const d = e.dim, idx = ELEMENTS.indexOf(e);
+  const prev = ELEMENTS[idx - 1], next = ELEMENTS[idx + 1];
+  let h = `<div class="el-head">
+    <span class="eyebrow"><a href="#dim-${d.key}" style="color:inherit">${dimLabel(d)} · ${esc(d.title)}</a></span>
+    <h1><span class="mono">${e.id}</span>${esc(e.name)}</h1>
+    <div class="chips"><span class="seg-label">Applies to</span>${e.applies.map(p => `<span class="chip${p === profile ? " on" : ""}">${p}</span>`).join("")}</div>
+    ${!applies(e) ? `<div class="note"><p>This element is not in scope for the <b>${profile}</b> profile. It is shown for reference.</p></div>` : ""}
+    ${e.scope ? `<div class="note"><p><b>Scope note.</b> ${e.scope}</p></div>` : ""}
+    <p class="lead">${e.intent}</p>
+  </div>
+  <div class="facts">
+    <div><h4>Key risks addressed</h4><div>${e.risks}</div></div>
+    <div><h4>References</h4><div>${e.refs}</div></div>
+  </div>
+  <nav class="ladder-nav" aria-label="Stages">${e.stages.map(s => {
+    const n = s.evidence.filter(v => itemVisible(v.profile)).length;
+    return `<a href="#${e.id}" data-stage="${s.name}"><span style="background:var(${STAGE_VAR[s.name]})"></span>${s.name}<small>${s.name === "Traditional" ? "baseline" : n + " evidence"}</small></a>`;
+  }).join("")}</nav>`;
+
+  e.stages.forEach(s => {
+    const prac = s.practices.filter(p => itemVisible(p.tag));
+    const ev = s.evidence.filter(v => itemVisible(v.profile));
+    const hidden = (s.practices.length - prac.length) + (s.evidence.length - ev.length);
+    h += `<section class="stage" id="${e.id}-${s.name}">
+      <div class="stage-h">${rungs(s.name)}<h2>${s.name}</h2><span class="gist">${STAGE_GIST[s.name]}</span></div>
+      <div class="stage-desc">${s.desc}</div>`;
+    if (s.name !== "Traditional") {
+      if (prac.length) h += `<div class="sub">Practices</div><ul class="practices">${prac.map(p =>
+        `<li><span>${p.tag ? `<span class="p">${p.tag}</span>` : ""}${p.html}</span></li>`).join("")}</ul>`;
+      h += `<div class="sub">Evidence to produce</div>`;
+      h += ev.length ? `<div class="evidence">${ev.map(v => `
+        <div class="ev">
+          <div class="ev-meta"><span class="ev-id">${v.id}</span><span class="ev-tags"><span class="t t-${v.type}">${v.type}</span><span class="p">${v.profile}</span></span></div>
+          <div class="ev-body"><b>${esc(v.name)}</b><div>${v.criteria}</div></div>
+        </div>`).join("")}</div>` : `<p class="empty">No evidence items for this profile at this stage.</p>`;
+      if (hidden) h += `<span class="hidden-note">${hidden} item${hidden > 1 ? "s" : ""} for other profiles hidden. Choose "All" to show ${hidden > 1 ? "them" : "it"}.</span>`;
+    } else {
+      h += `<p class="hidden-note">Traditional is the baseline and has no evidence requirement.</p>`;
+    }
+    h += `</section>`;
+  });
+  h += `<div class="section">${copyBar(e)}</div>`;
+  h += `<nav class="pager">${prev ? `<a href="#${prev.id}"><small>Previous</small><span><span class="mono">${prev.id}</span> ${esc(prev.name)}</span></a>` : "<span></span>"}
+    ${next ? `<a class="next" href="#${next.id}"><small>Next</small><span><span class="mono">${next.id}</span> ${esc(next.name)}</span></a>` : ""}</nav>`;
+  return h;
+}
+
+function viewSearch(q) {
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  const hit = s => { const l = s.toLowerCase(); return terms.every(t => l.includes(t)); };
+  const mark = s => {
+    let out = esc(s);
+    terms.forEach(t => { out = out.replace(new RegExp("(" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "gi"), "<mark>$1</mark>"); });
+    return out;
+  };
+  const res = [];
+  ELEMENTS.forEach(e => {
+    if (!applies(e)) return;
+    if (hit(e.id + " " + e.name)) res.push({ e, kind: "Element", title: e.name, text: stripTags(e.intent) });
+    e.stages.forEach(s => {
+      s.evidence.forEach(v => {
+        if (itemVisible(v.profile) && hit(v.id + " " + v.name + " " + v.criteriaText))
+          res.push({ e, s, kind: v.id, type: v.type, title: v.name, text: v.criteriaText });
+      });
+      s.practices.forEach(p => {
+        const t = stripTagsRaw(p.html);
+        if (itemVisible(p.tag) && hit(t)) res.push({ e, s, kind: "Practice", title: null, text: t });
+      });
+    });
+  });
+  const shown = res.slice(0, 150);
+  return `<div class="el-head"><span class="eyebrow">Search</span><h1>${res.length} result${res.length === 1 ? "" : "s"} for “${esc(q)}”</h1>
+    ${res.length > shown.length ? `<p class="empty">Showing the first ${shown.length}. Add another word to narrow the results.</p>` : ""}</div>
+    <div class="section"><div class="results">${shown.map(r => `
+      <a class="result" href="#${r.e.id}" ${r.s ? `data-stage="${r.s.name}"` : ""}>
+        <span class="top"><span class="mono">${r.e.id}</span><span>${esc(r.e.name)}</span>${r.s ? `<span>· ${r.s.name}</span>` : ""}
+          ${r.type ? `<span class="t t-${r.type}">${r.type}</span>` : ""}<span class="p">${esc(r.kind)}</span></span>
+        ${r.title ? `<b>${mark(r.title)}</b>` : ""}<div>${mark(r.text)}</div>
+      </a>`).join("") || `<p class="empty">Nothing matches. Try a broader term, such as “red team”, “kill switch” or “AI-BOM”.</p>`}</div></div>`;
+}
+function stripTagsRaw(s) { const t = document.createElement("div"); t.innerHTML = s; return t.textContent; }
+
+/* ------------------------------------------------------------ checklist copy */
+function copyBar(e) {
+  const scopeText = e ? `${e.id} checklist` : "Full checklist";
+  return `<div class="copybar" data-el="${e ? e.id : ""}">
+    <span><b>${scopeText}</b> · ${profile === "All" ? "all profiles" : profile + " profile"} · target stage</span>
+    <select class="stage-sel" aria-label="Target stage">${STAGES.slice(1).map(s => `<option${s === "Advanced" ? " selected" : ""}>${s}</option>`).join("")}</select>
+    <button class="btn copy-btn" type="button">Copy as CSV</button>
+    <span class="copy-status" aria-live="polite">Paste into a spreadsheet. Includes blank status, owner, location and date columns.</span>
+  </div>`;
+}
+function csvFor(elId, upto) {
+  const lim = STAGES.indexOf(upto);
+  const cell = v => /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
+  const rows = [["Dimension", "Element ID", "Element", "Stage", "Evidence ID", "Evidence", "Type", "Profile", "Acceptance criteria", "Status", "Owner", "Evidence location", "Date", "Notes"]];
+  const els = elId ? [BY_ID[elId]] : ELEMENTS.filter(applies);
+  els.forEach(e => e.stages.forEach(s => {
+    if (STAGES.indexOf(s.name) > lim) return;
+    s.evidence.forEach(v => {
+      if (!itemVisible(v.profile)) return;
+      rows.push([e.dim.title, e.id, e.name, s.name, v.id, v.name, v.type, v.profile, v.criteriaText, "", "", "", "", ""]);
+    });
+  }));
+  return { text: rows.map(r => r.map(cell).join(",")).join("\n"), n: rows.length - 1 };
+}
+document.addEventListener("click", ev => {
+  const b = ev.target.closest(".copy-btn");
+  if (!b) return;
+  const bar = b.closest(".copybar");
+  const { text, n } = csvFor(bar.dataset.el || null, $(".stage-sel", bar).value);
+  const status = $(".copy-status", bar);
+  const fallback = () => {
+    let ta = $(".copy-fallback", bar);
+    if (!ta) { ta = document.createElement("textarea"); ta.className = "copy-fallback"; ta.readOnly = true; ta.setAttribute("aria-label", "Checklist CSV"); bar.appendChild(ta); }
+    ta.value = text; ta.focus(); ta.select();
+    status.textContent = `Your browser blocked copying. The ${n} rows are selected below, so press Ctrl+C or ⌘C.`;
+  };
+  try {
+    navigator.clipboard.writeText(text).then(() => { status.textContent = `Copied ${n} evidence items as CSV.`; }, fallback);
+  } catch (err) { fallback(); }
+});
+
+/* ------------------------------------------------------------ routing */
+let pendingStage = null;
+document.addEventListener("click", ev => {
+  const a = ev.target.closest("a[data-stage]");
+  if (a) pendingStage = a.getAttribute("data-stage");
+});
+
+function route() {
+  const q = $("#q").value.trim();
+  const hash = decodeURIComponent(location.hash.slice(1)) || "overview";
+  const view = $("#view");
+  let current = hash;
+  if (q.length >= 2) {
+    view.innerHTML = viewSearch(q); current = "";
+  } else if (BY_ID[hash]) {
+    view.innerHTML = viewElement(BY_ID[hash]);
+  } else if (hash.startsWith("dim-") && DIMS.find(d => "dim-" + d.key === hash)) {
+    view.innerHTML = viewDim(DIMS.find(d => "dim-" + d.key === hash));
+  } else if (hash.startsWith("doc-") && DATA.docs.find(d => "doc-" + d.id === hash)) {
+    view.innerHTML = viewDoc(DATA.docs.find(d => "doc-" + d.id === hash));
+  } else {
+    view.innerHTML = viewOverview(); current = "overview";
+  }
+  renderNav(current);
+  document.body.classList.remove("nav-open");
+  $("#navtoggle").setAttribute("aria-expanded", "false");
+  if (pendingStage && BY_ID[hash]) {
+    const target = document.getElementById(hash + "-" + pendingStage);
+    pendingStage = null;
+    if (target) { target.scrollIntoView(); return; }
+  }
+  pendingStage = null;
+  window.scrollTo(0, 0);
+}
+
+function setProfile(p) {
+  profile = p;
+  try { localStorage.setItem("aismm-profile", p); } catch (e) {}
+  document.querySelectorAll("#profile-seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === p)));
+  const y = window.scrollY;
+  route();
+  window.scrollTo(0, y);
+}
+
+document.querySelectorAll("#profile-seg button").forEach(b => b.addEventListener("click", () => setProfile(b.dataset.p)));
+document.querySelectorAll("#profile-seg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.p === profile)));
+
+// Stage links on the same element page: scroll without re-rendering.
+document.addEventListener("click", ev => {
+  const a = ev.target.closest(".ladder-nav a, a.result[data-stage]");
+  if (!a) return;
+  const id = a.getAttribute("href").slice(1);
+  if (id === decodeURIComponent(location.hash.slice(1)) && !$("#q").value.trim()) {
+    ev.preventDefault();
+    const t = document.getElementById(id + "-" + a.dataset.stage);
+    if (t) t.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    pendingStage = null;
+  } else if (a.classList.contains("result")) {
+    $("#q").value = "";
+    if (id === decodeURIComponent(location.hash.slice(1))) { ev.preventDefault(); route(); }
+  }
+});
+
+let qTimer;
+$("#q").addEventListener("input", () => { clearTimeout(qTimer); qTimer = setTimeout(route, 120); });
+$("#q").addEventListener("keydown", ev => { if (ev.key === "Escape") { ev.target.value = ""; route(); } });
+$("#navtoggle").addEventListener("click", () => {
+  const open = document.body.classList.toggle("nav-open");
+  $("#navtoggle").setAttribute("aria-expanded", String(open));
+});
+window.addEventListener("hashchange", route);
+route();
+</script>

@@ -86,6 +86,16 @@ Each element has:
    dimension, use the lowest element stage and show the distribution with it.
    Create a roadmap from the unmet evidence items for the next stage.
 
+## Web reference
+
+`site/index.html` is a single-page reference built from these Markdown files. It
+filters by profile, searches evidence and practices, and copies checklists as
+CSV. Rebuild it after editing the model:
+
+```bash
+python3 tools/build_site.py
+```
+
 ## Framework alignment
 
 AISMM draws on the NIST AI Risk Management Framework, ISO/IEC 42001, the EU AI
